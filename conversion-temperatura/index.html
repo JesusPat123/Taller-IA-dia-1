@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertidor Celsius a Fahrenheit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 300px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        #resultado {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Convertidor</h1>
+        <input type="number" id="celsius" placeholder="Ingresa °C" step="0.01">
+        <button onclick="convertir()">Convertir</button>
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        function convertir() {
+            const celsius = parseFloat(document.getElementById('celsius').value);
+            if (isNaN(celsius)) {
+                document.getElementById('resultado').textContent = 'Por favor ingresa un número';
+                return;
+            }
+            const fahrenheit = (celsius * 9/5) + 32;
+            document.getElementById('resultado').textContent = 
+                `${celsius}°C = ${fahrenheit.toFixed(2)}°F`;
+        }
+
+        document.getElementById('celsius').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') convertir();
+        });
+    </script>
+</body>
+</html>

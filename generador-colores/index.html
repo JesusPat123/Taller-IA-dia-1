@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Colores Aleatorios</title>
+    <style>
+        /* Reiniciar estilos por defecto */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Estilos generales */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Contenedor principal */
+        .contenedor {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Título */
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Div del color */
+        .color-display {
+            width: 100%;
+            height: 300px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            background-color: #667eea;
+            transition: background-color 0.4s ease-in-out;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Efecto de ripple en el div del color */
+        .color-display::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .color-display:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+            }
+        }
+
+        /* Párrafo con el código hexadecimal */
+        .codigo-hexadecimal {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            user-select: all;
+        }
+
+        /* Contenedor de botones */
+        .botones {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Estilos generales de botones */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Botón Generar Color */
+        .btn-generar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .btn-generar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-generar:active {
+            transform: translateY(-1px);
+        }
+
+        /* Botón Copiar */
+        .btn-copiar {
+            background: #4CAF50;
+            color: white;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .btn-copiar:hover {
+            background: #45a049;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-copiar:active {
+            transform: translateY(-1px);
+        }
+
+        /* Mensaje de confirmación */
+        .mensaje-confirmacion {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #4CAF50;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            min-height: 20px;
+        }
+
+        .mensaje-confirmacion.visible {
+            opacity: 1;
+        }
+
+        /* Responsive para móviles */
+        @media (max-width: 600px) {
+            .contenedor {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .color-display {
+                height: 250px;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .botones {
+                flex-direction: column;
+            }
+
+            .btn-generar,
+            .btn-copiar {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .codigo-hexadecimal {
+                font-size: 16px;
+            }
+        }
+
+        /* Animación de entrada */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .contenedor {
+            animation: slideIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <h1>Generador de Colores Aleatorios</h1>
+        
+        <!-- Div que muestra el color -->
+        <div class="color-display" id="colorDisplay"></div>
+        
+        <!-- Párrafo con el código hexadecimal -->
+        <div class="codigo-hexadecimal" id="codigoHexadecimal">#667EEA</div>
+        
+        <!-- Botones de acción -->
+        <div class="botones">
+            <button class="btn-generar" id="btnGenerar">Generar Color</button>
+            <button class="btn-copiar" id="btnCopiar">Copiar Código</button>
+        </div>
+        
+        <!-- Mensaje de confirmación -->
+        <div class="mensaje-confirmacion" id="mensajeConfirmacion">✓ Código copiado al portapapeles</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

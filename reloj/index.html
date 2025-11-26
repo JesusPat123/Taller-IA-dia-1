@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Reloj Digital con Alarma</title>
+
+    <!-- Fuente digital/tech -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root{
+            --bg:#071021;
+            --panel:#0b1624;
+            --accent:#00ffcc;
+            --muted:#7aa3b3;
+            --danger:#ff4d4d;
+        }
+
+        html,body{
+            height:100%;
+            margin:0;
+            font-family: 'Orbitron', sans-serif;
+            background:linear-gradient(180deg,var(--bg) 0%, #02111a 100%);
+            color:var(--accent);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .container{
+            width:900px;
+            max-width:95%;
+            background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border:1px solid rgba(255,255,255,0.04);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            border-radius:12px;
+            padding:28px;
+            display:grid;
+            grid-template-columns: 1fr 360px;
+            gap:20px;
+        }
+
+        /* Reloj grande */
+        .clock-panel{
+            background:linear-gradient(180deg, rgba(0,0,0,0.25), rgba(255,255,255,0.01));
+            border-radius:10px;
+            padding:28px;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:12px;
+            min-height:200px;
+            position:relative;
+        }
+
+        .time{
+            font-size:72px;
+            letter-spacing:6px;
+            color:var(--accent);
+            text-shadow: 0 0 9px rgba(0,255,204,0.12), 0 6px 18px rgba(0,0,0,0.7);
+        }
+
+        .time.small{
+            font-size:48px;
+        }
+
+        .date{
+            color:var(--muted);
+            font-size:18px;
+            letter-spacing:0.6px;
+        }
+
+        .greeting{
+            position:absolute;
+            top:18px;
+            left:20px;
+            font-size:18px;
+            color:var(--muted);
+        }
+
+        .indicator{
+            position:absolute;
+            top:20px;
+            right:20px;
+            display:flex;
+            align-items:center;
+            gap:8px;
+            color:var(--muted);
+            font-size:14px;
+        }
+
+        .dot{
+            width:12px;
+            height:12px;
+            border-radius:50%;
+            background:rgba(120,120,120,0.2);
+            box-shadow:0 0 8px rgba(0,0,0,0.6) inset;
+        }
+        .dot.active{
+            background:var(--accent);
+            box-shadow: 0 0 12px rgba(0,255,204,0.2);
+        }
+
+        /* Right column: controles */
+        .controls{
+            background:var(--panel);
+            border-radius:10px;
+            padding:18px;
+            display:flex;
+            flex-direction:column;
+            gap:14px;
+        }
+
+        label{
+            font-size:13px;
+            color:var(--muted);
+            margin-bottom:6px;
+        }
+
+        input[type="time"]{
+            width:100%;
+            padding:10px;
+            border-radius:8px;
+            border:1px solid rgba(255,255,255,0.04);
+            background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.003));
+            color:var(--accent);
+            font-size:16px;
+        }
+
+        .row{
+            display:flex;
+            gap:10px;
+        }
+
+        button{
+            padding:10px 14px;
+            border-radius:8px;
+            border:none;
+            cursor:pointer;
+            font-weight:700;
+            color:#051219;
+            background:var(--accent);
+            box-shadow: 0 6px 18px rgba(0,255,204,0.06);
+            transition:transform .12s ease;
+        }
+        button:active{ transform:translateY(1px); }
+        button.ghost{
+            background:transparent;
+            color:var(--muted);
+            border:1px solid rgba(255,255,255,0.04);
+        }
+        button.warn{
+            background:var(--danger);
+            color:white;
+        }
+
+        .status{
+            color:var(--muted);
+            font-size:14px;
+            padding:10px;
+            border-radius:8px;
+            background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.003));
+        }
+
+        .notify{
+            margin-top:8px;
+            padding:14px;
+            border-radius:8px;
+            background:rgba(0,0,0,0.3);
+            color:var(--accent);
+            display:none;
+            flex-direction:column;
+            gap:8px;
+            align-items:center;
+            text-align:center;
+        }
+        .notify.show{ display:flex; animation:pop .28s ease; }
+
+        @keyframes pop{
+            from{ transform:translateY(6px); opacity:0 }
+            to{ transform:translateY(0); opacity:1 }
+        }
+
+        /* Parpadeo cuando suena la alarma */
+        .alarm-blink .time{
+            animation: blink 0.6s steps(2) infinite;
+            color: #ffef00;
+            text-shadow: 0 0 14px rgba(255,239,0,0.25);
+        }
+        @keyframes blink{
+            50%{ opacity:0.25; filter:brightness(0.6); }
+        }
+
+        /* Responsivo */
+        @media (max-width:760px){
+            .container{ grid-template-columns: 1fr; }
+        }
+
+        /* pequeño pie de ayuda */
+        .help{
+            font-size:12px;
+            color:var(--muted);
+            margin-top:6px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="clock-panel" id="clockPanel">
+            <div class="greeting" id="greeting">Buenos días</div>
+            <div class="indicator">
+                <div class="dot" id="alarmDot"></div>
+                <div id="alarmText">Sin alarma</div>
+            </div>
+
+            <div class="time" id="timeDisplay">00:00:00</div>
+            <div class="date" id="dateDisplay">Lunes, 01 de Enero de 2025</div>
+
+            <div class="help">Modo visual: pantalla digital. La alarma hará parpadear el reloj y sonará.</div>
+        </div>
+
+        <div class="controls">
+            <div>
+                <label for="alarmTime">Configurar alarma</label>
+                <input type="time" id="alarmTime" step="60" />
+            </div>
+
+            <div class="row">
+                <button id="setAlarm">Establecer Alarma</button>
+                <button id="cancelAlarm" class="ghost">Cancelar Alarma</button>
+            </div>
+
+            <div class="status" id="alarmStatus">No hay alarma activa.</div>
+
+            <div class="row">
+                <button id="toggleMode" class="ghost">Cambiar a 12h</button>
+            </div>
+
+            <div class="notify" id="notifyArea">
+                <div style="font-size:18px;font-weight:700">¡Alarma!</div>
+                <div id="notifyMsg">La hora seleccionada ha llegado.</div>
+                <div class="row">
+                    <button id="dismissBtn">Descartar</button>
+                    <button id="snoozeBtn" class="ghost">Posponer 5 min</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GitHub Copilot - Reloj digital con alarma
+        // Variables principales
+        const timeDisplay = document.getElementById('timeDisplay');
+        const dateDisplay = document.getElementById('dateDisplay');
+        const greetingEl = document.getElementById('greeting');
+        const alarmTimeInput = document.getElementById('alarmTime');
+        const setBtn = document.getElementById('setAlarm');
+        const cancelBtn = document.getElementById('cancelAlarm');
+        const alarmStatus = document.getElementById('alarmStatus');
+        const alarmDot = document.getElementById('alarmDot');
+        const alarmText = document.getElementById('alarmText');
+        const notifyArea = document.getElementById('notifyArea');
+        const notifyMsg = document.getElementById('notifyMsg');
+        const dismissBtn = document.getElementById('dismissBtn');
+        const snoozeBtn = document.getElementById('snoozeBtn');
+        const toggleModeBtn = document.getElementById('toggleMode');
+        const clockPanel = document.getElementById('clockPanel');
+
+        let alarmDate = null;       // Date objeto que indica próxima ocurrencia de la alarma
+        let alarmActive = false;    // bandera si hay alarma establecida
+        let ringing = false;        // si la alarma está sonando
+        let audioContext = null;
+        let beepTimers = [];        // timers para reproducir sonidos repetidos
+        let use24h = true;          // modo 24h por defecto
+
+        // Nombres de días y meses en español
+        const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+        const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+        // Formatea números con cero a la izquierda
+        function pad(n){ return n.toString().padStart(2,'0'); }
+
+        // Actualiza reloj y fecha cada segundo
+        function updateClock(){
+            const now = new Date();
+
+            // Formato hora HH:MM:SS o 12h si está activado
+            let hours = now.getHours();
+            let suffix = '';
+            if(!use24h){
+                suffix = hours >= 12 ? ' PM' : ' AM';
+                hours = hours % 12;
+                if(hours === 0) hours = 12;
+            }
+            const hStr = pad(hours);
+            const timeStr = `${hStr}:${pad(now.getMinutes())}:${pad(now.getSeconds())}${suffix}`;
+            timeDisplay.textContent = timeStr;
+
+            // Fecha en español: Dia, DD de Mes de YYYY
+            const dateStr = `${dias[now.getDay()]}, ${pad(now.getDate())} de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
+            dateDisplay.textContent = dateStr;
+
+            // Saludo según hora del día (basado en hora local en 24h)
+            const realHour = now.getHours();
+            let saludo = 'Buenas noches';
+            if(realHour >= 6 && realHour < 12) saludo = 'Buenos días';
+            else if(realHour >= 12 && realHour < 20) saludo = 'Buenas tardes';
+            greetingEl.textContent = saludo;
+
+            // Si hay alarma activa, comprobar si es momento de sonar
+            if(alarmActive && alarmDate && !ringing){
+                if(now >= alarmDate){
+                    triggerAlarm();
+                } else {
+                    // Mostrar cuánto falta (opcional)
+                    const diffMs = alarmDate - now;
+                    const mins = Math.floor(diffMs / 60000);
+                    const hrs = Math.floor(mins / 60);
+                    const remMin = mins % 60;
+                    alarmStatus.textContent = `Alarma programada para ${alarmDate.toLocaleString()} (faltan ${hrs}h ${remMin}m)`;
+                }
+            }
+        }
+
+        // Convierte valor de input[type=time] (HH:MM) a Date de próxima ocurrencia
+        function computeNextAlarm(timeVal){
+            if(!timeVal) return null;
+            const [hh, mm] = timeVal.split(':').map(Number);
+            const now = new Date();
+            const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
+            // Si la hora ya pasó o es igual a ahora, programar al día siguiente
+            if(target <= now){
+                target.setDate(target.getDate() + 1);
+            }
+            return target;
+        }
+
+        // Establece la alarma
+        setBtn.addEventListener('click', () => {
+            const val = alarmTimeInput.value;
+            if(!val){
+                alarmStatus.textContent = 'Seleccione una hora válida para la alarma.';
+                return;
+            }
+            const next = computeNextAlarm(val);
+            if(!next){
+                alarmStatus.textContent = 'No se pudo interpretar la hora.';
+                return;
+            }
+            alarmDate = next;
+            alarmActive = true;
+            ringing = false;
+            updateAlarmUI();
+        });
+
+        // Cancela la alarma
+        cancelBtn.addEventListener('click', () => {
+            disableAlarm('Alarma cancelada.');
+        });
+
+        // Actualiza UI cuando la alarma está activa o no
+        function updateAlarmUI(){
+            if(alarmActive && alarmDate){
+                alarmDot.classList.add('active');
+                alarmText.textContent = `Activa: ${pad(alarmDate.getHours())}:${pad(alarmDate.getMinutes())} ${alarmDate.toLocaleDateString()}`;
+                alarmStatus.textContent = `Alarma activa para ${alarmDate.toLocaleString()}`;
+            } else {
+                alarmDot.classList.remove('active');
+                alarmText.textContent = 'Sin alarma';
+                alarmStatus.textContent = 'No hay alarma activa.';
+            }
+        }
+
+        // Dispara la alarma: efectos visuales y sonido
+        function triggerAlarm(){
+            ringing = true;
+            // Mostrar notificación visual
+            notifyMsg.textContent = `¡Sonó la alarma (${pad(alarmDate.getHours())}:${pad(alarmDate.getMinutes())})!`;
+            notifyArea.classList.add('show');
+            clockPanel.classList.add('alarm-blink');
+
+            // Reproducir sonido repetido y breve con WebAudio
+            playAlarmSound();
+
+            // Desactivar la alarma automáticamente (no sonará otra vez)
+            alarmActive = false;
+            // Refrescar UI de estado (mantener notificación visible)
+            updateAlarmUI();
+
+            // Cuando suene, también podemos usar alert() como simulación adicional si no hay audio
+            // alert('¡Alarma!'); // opcional, comentado por mejor UX
+        }
+
+        // Desactiva la alarma y limpia efectos
+        function disableAlarm(msg='No hay alarma activa.'){
+            alarmActive = false;
+            ringing = false;
+            alarmDate = null;
+            stopAlarmSound();
+            notifyArea.classList.remove('show');
+            clockPanel.classList.remove('alarm-blink');
+            alarmStatus.textContent = msg;
+            updateAlarmUI();
+        }
+
+        // Reproducir sonido de alarma con WebAudio (serie de beeps)
+        function playAlarmSound(){
+            stopAlarmSound(); // por si acaso
+
+            try {
+                if(!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = audioContext;
+                let beeps = 6; // número de repeticiones
+                const interval = 800; // ms entre beeps
+                let count = 0;
+
+                // función que crea y toca un beep corto
+                function singleBeep(){
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = 880; // frecuencia del beep
+                    gain.gain.value = 0.0001;
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    // envelope rápido
+                    const now = ctx.currentTime;
+                    gain.gain.setValueAtTime(0.0001, now);
+                    gain.gain.exponentialRampToValueAtTime(0.3, now + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+
+                    // limpiar referencia después de parar
+                    const t = setTimeout(()=>{ /* no-op */ }, 700);
+                    beepTimers.push(t);
+                }
+
+                // reproducir primero inmediatamente y luego en intervalos
+                singleBeep();
+                count++;
+                const timer = setInterval(()=>{
+                    if(count >= beeps){
+                        clearInterval(timer);
+                        // después de finalizar, detener efectos visuales pasada una pequeña pausa
+                        setTimeout(()=>{ disableAlarm('Alarma terminada.'); }, 800);
+                        return;
+                    }
+                    singleBeep();
+                    count++;
+                }, interval);
+                beepTimers.push(timer);
+            } catch(e){
+                // En navegadores que bloqueen AudioContext: fallback a alert visual
+                console.warn('AudioError', e);
+                setTimeout(()=>{ alert('¡Alarma!'); disableAlarm('Alarma terminada.'); }, 100);
+            }
+        }
+
+        // Parar reproducciones y limpiar timers
+        function stopAlarmSound(){
+            // limpiar timers
+            beepTimers.forEach(t => clearInterval(t));
+            beepTimers = [];
+            // close audio context? mejor no cerrarlo para evitar permisos adicionales
+        }
+
+        // Botones de notificación: descartar y posponer
+        dismissBtn.addEventListener('click', ()=> disableAlarm('Alarma descartada.'));
+        snoozeBtn.addEventListener('click', ()=>{
+            // Posponer 5 minutos: crear nueva alarma dentro de 5 minutos
+            const now = new Date();
+            const snooze = new Date(now.getTime() + 5*60*1000);
+            alarmDate = new Date(snooze.getFullYear(), snooze.getMonth(), snooze.getDate(), snooze.getHours(), snooze.getMinutes(), 0, 0);
+            alarmActive = true;
+            ringing = false;
+            notifyArea.classList.remove('show');
+            clockPanel.classList.remove('alarm-blink');
+            stopAlarmSound();
+            updateAlarmUI();
+            alarmStatus.textContent = `Alarma pospuesta hasta ${alarmDate.toLocaleString()}`;
+        });
+
+        // Toggle 12h/24h
+        toggleModeBtn.addEventListener('click', ()=>{
+            use24h = !use24h;
+            toggleModeBtn.textContent = use24h ? 'Cambiar a 12h' : 'Cambiar a 24h';
+            updateClock();
+        });
+
+        // Inicializar reloj
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Comentarios de flujo:
+        // 1. El usuario selecciona hora (input time) y pulsa "Establecer Alarma".
+        // 2. computeNextAlarm calcula la próxima ocurrencia (hoy o mañana) y guarda alarmDate.
+        // 3. Cada segundo updateClock comprueba si la hora actual >= alarmDate. Si es así, triggerAlarm.
+        // 4. triggerAlarm muestra notificación, aplica efecto de parpadeo y llama a playAlarmSound.
+        // 5. La alarma se desactiva automáticamente al finalizar el sonido o al descartar.
+        // 6. Existe opción de posponer (snooze) 5 minutos.
+        // 7. El botón cancelar desactiva la alarma manualmente.
+
+        // Al cargar, actualizar UI
+        updateAlarmUI();
+
+        // Seguridad: si la pestaña perdió foco o hay cambios de hora, el chequeo por intervalo seguirá comparando Date actual con alarmDate,
+        // por lo que la alarma sonará si la hora real alcanza o supera la programada.
+    </script>
+</body>
+</html>

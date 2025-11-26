@@ -30,3 +30,10 @@ var alumnos = [
   { nombre: "Luis", calificacion: 92 },
   { nombre: "Marta", calificacion: 78 },
 ];
+
+//Escribe un bucle que recorra el array de los alumnos e imprima solo los que tengan una calificacion mayor a 80
+for (var i = 0; i < alumnos.length; i++) {
+  if (alumnos[i].calificacion > 80) {
+    console.log("Alumno aprobado: " + alumnos[i].nombre + " con calificación " + alumnos[i].calificacion);
+  }
+}

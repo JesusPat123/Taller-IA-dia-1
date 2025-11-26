@@ -21,7 +21,8 @@ console.log(persona.nombre);
 console.log(persona.habilidades);
 
 //como accedo a la habilidad del dibujo del objeto persona
-console.log(persona.habilidades[2]);
+
+console.log(persona.habilidades[1]);
 
 //3. array de objetos
 //Crea una lista de tres alumnos (objetos) con nombre y calificación

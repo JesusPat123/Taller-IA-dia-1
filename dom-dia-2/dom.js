@@ -22,6 +22,22 @@ btn.addEventListener('click', function (evento) {
 // Cuando den click en 'Cambiar Color', cambia el color de fondo de la caja a rojo.
 // Pídele a la IA: "¿Cómo cambio el estilo background-color de un elemento con JS?"
 
+var btnCambiarColor = document.getElementById('btnCambiarColor');
+var btnCambiarTexto = document.getElementById('btnCambiarTexto');
+var miCaja = document.getElementById('miCaja');
+
+// Añade listeners si los elementos existen
+if (btnCambiarColor && miCaja) {
+  btnCambiarColor.addEventListener('click', function () {
+    miCaja.style.backgroundColor = 'red';
+  });
+}
+
+if (btnCambiarTexto && miCaja) {
+  btnCambiarTexto.addEventListener('click', function () {
+    miCaja.textContent = '¡Hola DOM!';
+  });
+}
 
 // Reto:
 // Haz que el botón 'Cambiar Texto' cambie lo que dice dentro de la caja por "¡Hola DOM!".

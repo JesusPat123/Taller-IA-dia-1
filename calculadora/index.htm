@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <style>
+        :root{
+            --bg:#f4f7fb;
+            --panel:#ffffff;
+            --accent:#467fcf;
+            --muted:#6b7280;
+            --btn:#e6eefc;
+        }
+        body{font-family: system-ui, sans-serif; background:var(--bg); display:flex; align-items:center; justify-content:center; height:100vh; margin:0;}
+        .calc{background:var(--panel); padding:18px; border-radius:12px; box-shadow:0 6px 20px rgba(16,24,40,.08); width:320px;}
+        .display{background:#0f1724; color:#fff; font-size:28px; padding:12px 14px; border-radius:8px; text-align:right; min-height:56px; overflow:hidden; white-space:nowrap;}
+        .keys{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:12px;}
+        button{padding:14px; font-size:18px; border-radius:8px; border:0; cursor:pointer; background:var(--btn); color:#071033;}
+        button.op{background:var(--accent); color:#fff;}
+        button.double{grid-column:span 2;}
+        .small{font-size:14px; color:var(--muted); background:transparent;}
+    </style>
+</head>
+<body>
+    <div class="calc" aria-label="Calculadora">
+        <div id="display" class="display" role="textbox" aria-readonly="true">0</div>
+        <div class="keys">
+            <button data-action="clear" class="small">C</button>
+            <button data-action="del" class="small">DEL</button>
+            <button data-value="(">(</button>
+            <button data-value=")" >)</button>
+
+            <button data-value="7">7</button>
+            <button data-value="8">8</button>
+            <button data-value="9">9</button>
+            <button data-value="/" class="op">/</button>
+
+            <button data-value="4">4</button>
+            <button data-value="5">5</button>
+            <button data-value="6">6</button>
+            <button data-value="*" class="op">*</button>
+
+            <button data-value="1">1</button>
+            <button data-value="2">2</button>
+            <button data-value="3">3</button>
+            <button data-value="-" class="op">-</button>
+
+            <button data-value="0" class="double">0</button>
+            <button data-value=".">.</button>
+            <button data-action="equals" class="op">=</button>
+
+            <button data-value="+" class="op double">+</button>
+        </div>
+    </div>
+
+    <script src="calculator.js"></script>
+</body>
+</html>

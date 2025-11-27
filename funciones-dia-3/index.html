@@ -1,0 +1,70 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Detector de Palíndromos</title>
+	<style>
+		:root{font-family:system-ui,Segoe UI,Roboto,Arial;line-height:1.4}
+		body{max-width:720px;margin:28px auto;padding:16px}
+		h1{font-size:1.5rem;margin-bottom:8px}
+		.fila{display:flex;gap:8px;align-items:center;margin:12px 0}
+		input[type="text"]{flex:1;padding:8px;font-size:1rem}
+		button{padding:8px 12px;font-size:0.95rem}
+		#resultado{margin-top:14px;padding:12px;border-radius:6px;min-height:40px}
+		.success{background:#e6ffed;border:1px solid #2e7d32;color:#2e7d32}
+		.error{background:#ffecec;border:1px solid #c62828;color:#c62828}
+		.warning{background:#a68235;border:1px solid #ff9800;color:#7a4b00}
+		footer{margin-top:18px;font-size:0.9rem;color:#444}
+	</style>
+</head>
+<body>
+	<h1>Detector de Palíndromos</h1>
+
+	<p>Introduce una palabra o frase y pulsa <strong>Verificar</strong> (también funciona <kbd>Enter</kbd>).</p>
+
+	<div class="fila">
+		<label for="texto" class="sr-only">Texto a verificar</label>
+		<input id="texto" type="text" placeholder="Ej.: anilina / reconocer / oso" aria-label="Texto a verificar">
+		<button id="verificar">Verificar</button>
+		<button id="limpiar" type="button">Limpiar</button>
+	</div>
+
+	<div id="resultado" role="status" aria-live="polite"></div>
+
+	<footer>
+		<small>Archivo de lógica: <code>palindromos.js</code></small>
+	</footer>
+
+	<script src="palindromos.js"></script>
+	<script>
+		// Conexión con la lógica existente en palindromos.js
+		const input = document.getElementById('texto');
+		const btn = document.getElementById('verificar');
+		const limpiar = document.getElementById('limpiar');
+		const resultado = document.getElementById('resultado');
+
+		function mostrarResultado(texto){
+			if (!texto || !texto.trim()){
+				resultado.textContent = 'Por favor, introduce algún texto para verificar.';
+				resultado.className = 'warning';
+				return;
+			}
+			// usa la función global esPalindromo definida en palindromos.js
+			const es = esPalindromo(texto);
+			if (es) {
+				resultado.textContent = `"${texto}" es un palíndromo.`;
+				resultado.className = 'success';
+			} else {
+				resultado.textContent = `"${texto}" no es un palíndromo.`;
+				resultado.className = 'error';
+			}
+		}
+
+		btn.addEventListener('click', () => mostrarResultado(input.value));
+		input.addEventListener('keydown', (e) => { if (e.key === 'Enter') mostrarResultado(input.value); });
+		limpiar.addEventListener('click', () => { input.value = ''; resultado.textContent = ''; resultado.className = ''; input.focus(); });
+	</script>
+</body>
+</html>
